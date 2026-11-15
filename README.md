@@ -1,5 +1,7 @@
 # Amanah RAG (lite)
 
+[![ci](https://github.com/OmerAbdel-aziz/AmanahRAG/actions/workflows/ci.yml/badge.svg)](https://github.com/OmerAbdel-aziz/AmanahRAG/actions/workflows/ci.yml)
+
 A bilingual (Arabic / English) retrieval-augmented generation stack with a strict PII boundary,
 citation-first answers, and an offline-friendly evaluation loop.
 
@@ -79,6 +81,18 @@ key to use a real model.
 `packages/contracts` is the single source of truth for the HTTP and event surface. Change a
 schema there first, then regenerate or update the consumers. CI validates that the OpenAPI
 document parses and that event schemas declare `additionalProperties: false`.
+
+## Not built yet
+
+The skeleton is honest about its edges:
+
+- **Corpus and golden set are seeds, not a benchmark.** 6 of 60 documents and 10 of 50–80
+  questions exist; see `data/README.md` for the expansion rules.
+- **No evaluation harness.** The interface and targets are fixed in `docs/benchmark.md`.
+- **The API does not publish events yet.** Metadata is stored; the RabbitMQ handoff is a
+  follow-up (ADR 0002).
+- **No auth guard.** Keycloak is provisioned in compose, but routes are open.
+- **No reranker or streaming.** Baseline retrieval only (`top_k=5`, one embedding model).
 
 ## Testing
 
