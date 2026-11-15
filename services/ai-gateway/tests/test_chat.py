@@ -46,7 +46,7 @@ def test_chat_redacts_pii_before_retrieval_and_rehydrates_answer() -> None:
     graph = build_graph(retriever, EchoAnswerer())
 
     state = {
-        "question": "Email sara@example.org about retention",
+        "question": "Email [EMAIL_1] about retention",
         "language": "en",
         "top_k": 3,
         "pii_mapping": {"[EMAIL_1]": "sara@example.org"},

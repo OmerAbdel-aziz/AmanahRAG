@@ -15,7 +15,7 @@ from langgraph.graph import END, START, StateGraph
 from app.config import get_settings
 from app.llm import Answerer
 from app.pii import PIIScrubber
-from app.retrieval import Retriever, RetrievedChunk, get_retriever
+from app.retrieval import RetrievedChunk, Retriever, get_retriever
 
 logger = logging.getLogger(__name__)
 

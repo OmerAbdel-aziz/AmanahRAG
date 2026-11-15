@@ -20,6 +20,9 @@ docker compose down -v               # wipe data
 
 ## Notes
 
+- The first run has no database tables. After Postgres is healthy, apply the schema:
+  `cd apps/api && npx prisma migrate dev --name init`. The first migration is intentionally
+  not committed (see `apps/api/README.md`).
 - Keycloak imports `keycloak/realm-export.json` on start: realm `amanah`, clients
   `amanah-web` (public, PKCE) and `amanah-api` (bearer-only). **No users are seeded**; create
   one in the admin console and grant the `user` role.
