@@ -31,7 +31,9 @@ class IngestionConsumer:
             exchange = await channel.declare_exchange(
                 self.settings.dead_letter_exchange, aio_pika.ExchangeType.FANOUT, durable=True
             )
-            dead_letter = await channel.declare_queue(f"{self.settings.queue_name}.dlq", durable=True)
+            dead_letter = await channel.declare_queue(
+                f"{self.settings.queue_name}.dlq", durable=True
+            )
             await dead_letter.bind(exchange)
 
             queue = await channel.declare_queue(
