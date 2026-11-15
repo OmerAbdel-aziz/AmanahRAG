@@ -1,0 +1,39 @@
+# Node
+node_modules/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+coverage/
+.turbo/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+.eggs/
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+
+# Local infrastructure state
+infra/compose/volumes/
+data/**/tmp/
+
+# Artefacts
+models/
+*.log
+.DS_Store
+.idea/
+.vscode/

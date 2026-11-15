@@ -1,0 +1,194 @@
+openapi: 3.1.0
+info:
+  title: Amanah Control Plane API
+  version: 0.1.0
+  description: Document metadata and ingestion job tracking. All routes are prefixed with /api.
+servers:
+  - url: http://localhost:3001
+    description: Local development
+tags:
+  - name: documents
+  - name: health
+paths:
+  /api/health:
+    get:
+      tags: [health]
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service and dependency status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+  /api/documents:
+    get:
+      tags: [documents]
+      operationId: listDocuments
+      summary: 100 most recent documents
+      responses:
+        "200":
+          description: Document summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DocumentSummary"
+    post:
+      tags: [documents]
+      operationId: createDocument
+      summary: Register document metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDocumentRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "409":
+          description: A document with this checksum already exists
+  /api/documents/{id}:
+    get:
+      tags: [documents]
+      operationId: getDocument
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Document with job history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "404":
+          description: Not found
+components:
+  schemas:
+    Language:
+      type: string
+      enum: [ar, en]
+    DocumentStatus:
+      type: string
+      enum: [uploaded, processing, ready, failed]
+    JobStatus:
+      type: string
+      enum: [queued, running, succeeded, failed]
+    CreateDocumentRequest:
+      type: object
+      additionalProperties: false
+      required: [title, filename, mimeType, language, sizeBytes, checksum]
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        filename:
+          type: string
+          maxLength: 255
+        mimeType:
+          type: string
+          maxLength: 120
+        language:
+          $ref: "#/components/schemas/Language"
+        sizeBytes:
+          type: integer
+          minimum: 1
+        checksum:
+          type: string
+          maxLength: 64
+          description: SHA-256 of the file.
+        metadata:
+          type: object
+          additionalProperties: true
+    DocumentSummary:
+      type: object
+      required: [id, title, language, status, createdAt, _count]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        language:
+          $ref: "#/components/schemas/Language"
+        status:
+          $ref: "#/components/schemas/DocumentStatus"
+        createdAt:
+          type: string
+          format: date-time
+        _count:
+          type: object
+          properties:
+            chunks:
+              type: integer
+    IngestionJob:
+      type: object
+      required: [id, status, attempts, queuedAt]
+      properties:
+        id:
+          type: string
+        status:
+          $ref: "#/components/schemas/JobStatus"
+        attempts:
+          type: integer
+        lastError:
+          type: string
+          nullable: true
+        queuedAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+        finishedAt:
+          type: string
+          format: date-time
+          nullable: true
+    Document:
+      allOf:
+        - $ref: "#/components/schemas/DocumentSummary"
+        - type: object
+          properties:
+            filename:
+              type: string
+            mimeType:
+              type: string
+            sizeBytes:
+              type: integer
+            metadata:
+              type: object
+            jobs:
+              type: array
+              items:
+                $ref: "#/components/schemas/IngestionJob"
+    Health:
+      type: object
+      required: [status, service, checks]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded]
+        service:
+          type: string
+        version:
+          type: string
+        uptimeSeconds:
+          type: integer
+        checks:
+          type: object
+          properties:
+            database:
+              type: boolean
+        timestamp:
+          type: string
+          format: date-time

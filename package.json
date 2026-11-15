@@ -1,0 +1,27 @@
+{
+  "name": "amanah-rag-lite",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bilingual RAG platform: Next.js UI, NestJS control plane, FastAPI gateway, ingestion worker.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:web dev:api",
+    "dev:web": "npm run dev --workspace @amanah/web",
+    "dev:api": "npm run dev --workspace @amanah/api",
+    "build": "npm run build --workspace @amanah/web && npm run build --workspace @amanah/api",
+    "lint": "npm run lint --workspace @amanah/web && npm run lint --workspace @amanah/api && npm run validate --workspace @amanah/contracts",
+    "test": "npm run test --workspace @amanah/api",
+    "validate:contracts": "npm run validate --workspace @amanah/contracts",
+    "db:generate": "npm run db:generate --workspace @amanah/api",
+    "db:migrate": "npm run db:migrate --workspace @amanah/api"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}

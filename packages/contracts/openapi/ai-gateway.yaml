@@ -1,0 +1,160 @@
+openapi: 3.1.0
+info:
+  title: Amanah AI Gateway
+  version: 0.1.0
+  description: >
+    Bilingual RAG endpoint. Callers send a question; the gateway redacts PII, retrieves
+    passages from Milvus and returns an answer with citations. Authentication terminates at
+    the edge (Keycloak); this document describes the internal contract.
+servers:
+  - url: http://localhost:8000
+    description: Local development
+tags:
+  - name: chat
+  - name: ops
+paths:
+  /v1/chat:
+    post:
+      tags: [chat]
+      operationId: askQuestion
+      summary: Answer a question from the indexed corpus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: Answer with supporting passages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "422":
+          description: Request failed validation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "502":
+          description: Upstream model provider failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /healthz:
+    get:
+      tags: [ops]
+      operationId: healthz
+      summary: Liveness and effective configuration
+      responses:
+        "200":
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+  /readyz:
+    get:
+      tags: [ops]
+      operationId: readyz
+      summary: Readiness
+      responses:
+        "200":
+          description: Ready to serve traffic
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    enum: [ready]
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      additionalProperties: false
+      required: [question]
+      properties:
+        question:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        language:
+          type: string
+          enum: [ar, en]
+          default: en
+        top_k:
+          type: integer
+          minimum: 1
+          maximum: 20
+    Citation:
+      type: object
+      additionalProperties: false
+      required: [document_id, chunk_id, title, snippet, score]
+      properties:
+        document_id:
+          type: string
+        chunk_id:
+          type: string
+        title:
+          type: string
+        snippet:
+          type: string
+          maxLength: 320
+        score:
+          type: number
+          description: Cosine similarity, higher is better.
+    ChatResponse:
+      type: object
+      additionalProperties: false
+      required: [trace_id, answer, language, model, latency_ms, citations]
+      properties:
+        trace_id:
+          type: string
+        answer:
+          type: string
+        language:
+          type: string
+          enum: [ar, en]
+        model:
+          type: string
+          description: Effective model id, or a `stub:*` marker when running offline.
+        latency_ms:
+          type: integer
+          minimum: 0
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Citation"
+        pii_redactions:
+          type: integer
+          minimum: 0
+          description: Number of values replaced by tokens before any model call.
+    Health:
+      type: object
+      additionalProperties: false
+      required: [status, service, version, environment, model, retrieval_enabled]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded]
+        service:
+          type: string
+        version:
+          type: string
+        environment:
+          type: string
+        model:
+          type: string
+        retrieval_enabled:
+          type: boolean
+    Error:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string

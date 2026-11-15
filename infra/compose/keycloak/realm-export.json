@@ -1,0 +1,37 @@
+{
+  "realm": "amanah",
+  "enabled": true,
+  "displayName": "Amanah RAG",
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "accessTokenLifespan": 900,
+  "roles": {
+    "realm": [
+      { "name": "admin", "description": "Manage documents and ingestion" },
+      { "name": "user", "description": "Ask questions" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "amanah-web",
+      "name": "Amanah web",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:3000/*"],
+      "webOrigins": ["http://localhost:3000"]
+    },
+    {
+      "clientId": "amanah-api",
+      "name": "Amanah API",
+      "enabled": true,
+      "publicClient": false,
+      "bearerOnly": true,
+      "standardFlowEnabled": false,
+      "serviceAccountsEnabled": false
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://amanah.example/events/document.indexed.v1.schema.json",
+  "title": "document.indexed.v1",
+  "description": "Published by the ingestion worker once vectors are committed to Milvus.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "event_type", "occurred_at", "document_id", "chunks", "vectors"],
+  "properties": {
+    "event_id": { "type": "string", "minLength": 1 },
+    "event_type": { "const": "document.indexed.v1" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "document_id": { "type": "string", "minLength": 1 },
+    "chunks": { "type": "integer", "minimum": 0 },
+    "vectors": { "type": "integer", "minimum": 0 },
+    "model": { "type": "string" }
+  }
+}

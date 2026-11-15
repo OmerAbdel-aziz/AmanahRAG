@@ -1,0 +1,21 @@
+# Keep build contexts small and deterministic.
+.git
+.github
+node_modules
+**/node_modules
+**/.next
+**/dist
+**/coverage
+**/.turbo
+**/__pycache__
+**/*.pyc
+**/.venv
+**/.pytest_cache
+**/.ruff_cache
+data
+docs
+infra
+services
+*.log
+.env
+.env.*

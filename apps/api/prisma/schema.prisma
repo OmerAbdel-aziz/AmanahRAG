@@ -1,0 +1,92 @@
+// Prisma schema for the Amanah control plane.
+// Vectors live in Milvus; PostgreSQL keeps the relational record and evaluation metadata.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DocumentLanguage {
+  ar
+  en
+}
+
+enum DocumentStatus {
+  uploaded
+  processing
+  ready
+  failed
+}
+
+enum JobStatus {
+  queued
+  running
+  succeeded
+  failed
+}
+
+model Document {
+  id         String           @id @default(cuid())
+  title      String
+  filename   String
+  mimeType   String
+  language   DocumentLanguage
+  status     DocumentStatus   @default(uploaded)
+  checksum   String           @unique
+  sizeBytes  Int
+  pageCount  Int?
+  metadata   Json             @default("{}")
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  chunks     Chunk[]
+  jobs       IngestionJob[]
+
+  @@index([language, status])
+}
+
+model Chunk {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  ordinal    Int
+  text       String
+  tokenCount Int
+  // Primary key of the matching vector in Milvus.
+  milvusId   String?  @unique
+  createdAt  DateTime @default(now())
+
+  @@unique([documentId, ordinal])
+  @@index([documentId])
+}
+
+model IngestionJob {
+  id          String    @id @default(cuid())
+  documentId  String
+  document    Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  status      JobStatus @default(queued)
+  attempts    Int       @default(0)
+  lastError   String?
+  queuedAt    DateTime  @default(now())
+  startedAt   DateTime?
+  finishedAt  DateTime?
+
+  @@index([status, queuedAt])
+}
+
+model QueryLog {
+  id            String           @id @default(cuid())
+  traceId       String           @unique
+  language      DocumentLanguage
+  question      String
+  answer        String
+  model         String
+  latencyMs     Int
+  citationCount Int              @default(0)
+  createdAt     DateTime         @default(now())
+
+  @@index([createdAt])
+}

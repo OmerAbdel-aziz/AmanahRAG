@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://amanah.example/events/query.answered.v1.schema.json",
+  "title": "query.answered.v1",
+  "description": "Emitted by the AI gateway for offline evaluation. Never contains raw PII.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "event_type", "occurred_at", "trace_id", "language", "question", "answer", "model", "latency_ms", "citation_count"],
+  "properties": {
+    "event_id": { "type": "string", "minLength": 1 },
+    "event_type": { "const": "query.answered.v1" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "trace_id": { "type": "string", "minLength": 1 },
+    "language": { "type": "string", "enum": ["ar", "en"] },
+    "question": { "type": "string", "minLength": 1 },
+    "answer": { "type": "string" },
+    "model": { "type": "string" },
+    "latency_ms": { "type": "integer", "minimum": 0 },
+    "citation_count": { "type": "integer", "minimum": 0 },
+    "pii_redactions": { "type": "integer", "minimum": 0 }
+  }
+}
