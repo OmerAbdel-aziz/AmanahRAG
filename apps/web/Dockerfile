@@ -4,7 +4,7 @@ COPY package.json package-lock.json* ./
 COPY apps/web/package.json apps/web/package.json
 COPY apps/api/package.json apps/api/package.json
 COPY packages/contracts/package.json packages/contracts/package.json
-RUN npm install --workspace @amanah/web --include-workspace-root
+RUN npm ci --workspace @amanah/web --include-workspace-root
 
 FROM node:20-alpine AS builder
 WORKDIR /repo
